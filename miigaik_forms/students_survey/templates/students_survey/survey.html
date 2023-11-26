@@ -1,0 +1,61 @@
+{% extends "students_survey/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}Опрос студентов{% endblock %}
+
+{% block head %}
+{{ wizard.form.media }}
+{% endblock %}
+
+{% block content %}
+<p>Шаг {{ wizard.steps.step1 }} из {{ wizard.steps.count }}</p>
+
+{% if wizard.steps.index == 1 %}
+<p>Критерии вашего лучшего преподавателя</p>
+{% elif wizard.steps.index == 2 %}
+<p>Критерии вашего худшего преподавателя</p>
+{% endif %}
+<form action="{% url 'survey_questions_page' %}" method="post" style="
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: stretch;
+    width:80%;
+">
+    {% csrf_token %}
+
+{{ wizard.management_form }}
+{% if wizard.form.forms %}
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+        {{ form|crispy }}
+    {% endfor %}
+{% else %}
+<!--    {{ wizard.form }}-->
+    {% for field in wizard.form %}
+        <div class="form-control" style="margin-bottom: 2%">
+            <div class="check-form">
+                <p style="font-size: 110%; font-weight: 500;">{{ field.label }}</p>
+                {{ field }}
+            </div>
+        </div>
+    {% endfor %}
+
+{% endif %}
+    <div class="buttons" style="margin-top: 2%;display: flex;flex-direction: column;align-content: center;align-items: stretch; flex-wrap: wrap;">
+        {% if wizard.steps.prev %}
+        <button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Предыдущий шаг</button>
+        {% endif %}
+
+            {% if wizard.steps.last %}
+        <input type="submit" class="btn btn-success" style="margin-top: 2%; margin-bottom: 2%; padding: 10px 40px" value="Отправить"/>
+            {% else %}
+            <input type="submit" class="btn btn-success" style="margin-top:2%" value="Далее"/>
+            {% endif %}
+    </div>
+    </form>
+
+{% endblock %}

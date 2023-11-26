@@ -1,0 +1,13 @@
+{% extends "students_survey/base.html" %}
+
+{% block content %}
+
+<form action="{% url 'auth_page' %}" method="post">
+    {% csrf_token %}
+
+    {{ form.phone_number }}
+
+    <input type="submit" value="Пройти опрос">
+</form>
+
+{% endblock %}
