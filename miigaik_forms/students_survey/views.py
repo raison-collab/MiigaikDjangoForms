@@ -24,29 +24,7 @@ class CheckStatusView(View):
         if not SurveyStatusModel.objects.all()[0].is_active:
             return HttpResponse('Опрос недоступен!')
 
-        session_key = self.request.GET.get('session')
-
-        if not session_key:
-            return redirect('/survey')
-
-        self.request.session = SessionStore(session_key=session_key)
-        phone = self.request.session.pop('phone', None)
-
-        self.request.session['phone'] = phone
-        self.request.session.save()
-
-        return redirect(f'/survey/survey-q/?session={self.request.session.session_key}')
-
-# def check_status(requests: WSGIRequest):
-#     if not SurveyStatusModel.objects.all()[0].is_active:
-#         return HttpResponse('Опрос недоступен!')
-#
-#     session_key = requests.GET.get('session')
-#
-#     if session_key:
-#         storage =
-#
-#     return redirect('/survey/survey-q')
+        return redirect(f'/survey/survey-q/')
 
 
 class StudentLoginView(LoginView):
@@ -77,34 +55,16 @@ class AuthView(View):
         else:
             StudentModel.objects.create(phone_number=form['phone_number'].value(), start_survey=True)
 
-        self.request.session['phone'] = form['phone_number'].value()
-        self.request.session.save()
-
-        return redirect(f'/survey/check-status/?session={self.request.session.session_key}')
+        return redirect(f'/survey/check-status/')
 
 
 class BookingWizardView(SessionWizardView):
     form_list = [AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3]
     template_name = 'students_survey/survey.html'
 
-    # def get(self, request, *args, **kwargs):
-    #     session_key = self.request.GET.get('session')
-    #
-    #     if not session_key:
-    #         return redirect('/survey')
-    #
-    #     return render(request, TEMPLATES['index'])
-
     def done(self, form_list, **kwargs):
-        session_key = self.request.GET.get('session')
 
-        if not session_key:
-            return redirect('/survey')
-
-        self.request.session = SessionStore(session_key=session_key)
-        phone = self.request.session.pop('phone', None)
-
-        student = StudentModel.objects.get(phone_number=phone)
+        student = StudentModel.objects.get()
         student.has_survey = True
         student.save()
 
