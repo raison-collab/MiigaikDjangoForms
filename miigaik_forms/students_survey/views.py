@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from django.contrib.auth.views import LoginView
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.handlers.wsgi import WSGIRequest
@@ -7,13 +9,15 @@ from django.views import View
 from django.views.generic import TemplateView
 from formtools.wizard.views import SessionWizardView
 
+from .data.questions import Questions
 from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3
 from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel
 
 status = True
 
 TEMPLATES = {
-    'index': 'students_survey/index.html'
+    'index': 'students_survey/index.html',
+    'result': 'students_survey/result.html'
 }
 
 
@@ -76,4 +80,32 @@ class BookingWizardView(SessionWizardView):
 
 
 class ResultView(View):
-    ...
+    def get(self, r: WSGIRequest):
+
+        questions = Questions()
+
+        students = StudentModel.objects.all()
+
+        answers = list(AnswerModel.objects.values())
+
+        asks_text = questions.get_questions_text()
+
+        ans_text = []
+
+        for question_id, ans in enumerate(answers, start=1):
+            if question_id == 14: continue
+            elif question_id == 15: continue
+            elif question_id == 17: continue
+            elif question_id == 18: continue
+            pprint({'id': question_id, 'ans': ans})
+            # ans_text.append(questions.get_questions_ans(question_id, ans['']))
+
+        context = {
+            'students_len': len(students),
+            'students': students,
+            'answers_len': len(answers),
+            'asks_text': asks_text,
+            'answers': answers
+        }
+
+        return render(r, TEMPLATES['result'], context=context)
