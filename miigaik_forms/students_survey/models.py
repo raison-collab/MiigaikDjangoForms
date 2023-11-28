@@ -11,7 +11,7 @@ from .data.questions import Questions
 class StudentModel(models.Model):
     phone_number = models.CharField(max_length=13, verbose_name='Номер телефона')
     has_survey = models.BooleanField(default=False, verbose_name='Прошел опрос')
-    start_survey = models.BooleanField(default=False, verbose_name='Начал тест')
+    # start_survey = models.BooleanField(default=False, verbose_name='Начал тест')
 
     def __str__(self):
         phone = self.phone_number

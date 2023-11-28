@@ -42,6 +42,12 @@ class StudentDetailForm(forms.ModelForm):
     class Meta:
         model = StudentModel
         fields = ('phone_number',)
+        widgets = {
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '+7XXXXXXXXXX'
+            })
+        }
 
 
 class AnswerDetailFormPart1(forms.ModelForm):

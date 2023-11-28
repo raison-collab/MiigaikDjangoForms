@@ -13,11 +13,14 @@ from .data.questions import Questions
 from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3
 from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel
 
-status = True
 
 TEMPLATES = {
     'index': 'students_survey/index.html',
     'result': 'students_survey/result.html'
+}
+
+URLS = {
+    'result': '/survey/result'
 }
 
 
@@ -63,18 +66,28 @@ class AuthView(View):
 
 
 class BookingWizardView(SessionWizardView):
-    form_list = [AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3]
+    form_list = [StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3]
     template_name = 'students_survey/survey.html'
 
     def done(self, form_list, **kwargs):
 
-        student = StudentModel.objects.get()
-        student.has_survey = True
-        student.save()
+        if not SurveyStatusModel.objects.all()[0].is_active:
+            return HttpResponse('Ответы не сохранены. Форма неактивна')
 
-        q15 = TeacherCriteriaModel.objects.create(**form_list[1].cleaned_data)
-        q18 = TeacherCriteriaModel.objects.create(**form_list[2].cleaned_data)
-        AnswerModel.objects.create(**form_list[0].cleaned_data, q15=q15, q18=q18)
+        students = StudentModel.objects.filter(phone_number=form_list[0]['phone_number'].value())
+
+        if len(students):
+            if students[0].has_survey:
+                return HttpResponse('Ответы не сохранены, Вы уже прошли опрос ранее!')
+            else:
+                students[0].has_survey = True
+                students[0].save()
+        else:
+            StudentModel.objects.create(phone_number=form_list[0]['phone_number'].value(), has_survey=True)
+
+        q15 = TeacherCriteriaModel.objects.create(**form_list[2].cleaned_data)
+        q18 = TeacherCriteriaModel.objects.create(**form_list[3].cleaned_data)
+        AnswerModel.objects.create(**form_list[1].cleaned_data, q15=q15, q18=q18)
 
         return HttpResponse('Опрос пройден!')
 
@@ -88,24 +101,36 @@ class ResultView(View):
 
         answers = list(AnswerModel.objects.values())
 
-        asks_text = questions.get_questions_text()
+        asks_text = [el[1] for el in questions.get_questions_text()]
 
         ans_text = []
 
-        for question_id, ans in enumerate(answers, start=1):
-            if question_id == 14: continue
-            elif question_id == 15: continue
-            elif question_id == 17: continue
-            elif question_id == 18: continue
-            pprint({'id': question_id, 'ans': ans})
-            # ans_text.append(questions.get_questions_ans(question_id, ans['']))
+        for row_index, row in enumerate(answers, start=1):
+            for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
+                if question_id in [15, 16, 18]: continue
+                pprint({'id': question_id, 'ans': ans, 'ans_id': row[ans]})
+                # ans_text.append(questions.get_questions_ans(question_id, ans_id=row[ans]))
+
+        pprint(ans_text)
 
         context = {
             'students_len': len(students),
             'students': students,
             'answers_len': len(answers),
             'asks_text': asks_text,
-            'answers': answers
+            'answers': answers,
+            'is_active': SurveyStatusModel.objects.all()[0].is_active
         }
 
         return render(r, TEMPLATES['result'], context=context)
+
+    def post(self, r: WSGIRequest):
+        survey_status = SurveyStatusModel.objects.all()[0]
+        if 'deactivate_survey' in r.POST:
+            survey_status.is_active = False
+        elif 'activate_survey' in r.POST:
+            survey_status.is_active = True
+
+        survey_status.save()
+
+        return redirect(URLS['result'])

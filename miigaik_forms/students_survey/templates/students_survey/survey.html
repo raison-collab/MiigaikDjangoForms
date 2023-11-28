@@ -9,12 +9,14 @@
 {% endblock %}
 
 {% block content %}
-<p>Шаг {{ wizard.steps.step1 }} из {{ wizard.steps.count }}</p>
+<h5 style="margin-top: 3%; margin-bottom:2%;">Шаг {{ wizard.steps.step1 }} из {{ wizard.steps.count }}</h5>
 
-{% if wizard.steps.index == 1 %}
-<p>Критерии вашего лучшего преподавателя</p>
-{% elif wizard.steps.index == 2 %}
-<p>Критерии вашего худшего преподавателя</p>
+{% if wizard.steps.index == 2 %}
+<h2>Критерии вашего лучшего преподавателя</h2>
+<p>Вы указали его на прошлом шаге (шаг №2)</p>
+{% elif wizard.steps.index == 3 %}
+<h2>Критерии вашего худшего преподавателя</h2>
+<p>Вы указали его на позапрошлом шаге (шаг №2)</p>
 {% endif %}
 <form action="{% url 'survey_questions_page' %}" method="post" style="
     display: flex;
