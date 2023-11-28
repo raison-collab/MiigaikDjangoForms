@@ -12,7 +12,7 @@ from formtools.wizard.views import SessionWizardView
 from .data.questions import Questions
 from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3
 from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel
-
+from .utils import Util
 
 TEMPLATES = {
     'index': 'students_survey/index.html',
@@ -25,46 +25,6 @@ URLS = {
 
 
 # Create your views here.
-
-class CheckStatusView(View):
-    def get(self, r: WSGIRequest):
-        if not SurveyStatusModel.objects.all()[0].is_active:
-            return HttpResponse('Опрос недоступен!')
-
-        return redirect(f'/survey/survey-q/')
-
-
-class StudentLoginView(LoginView):
-    template_name = TEMPLATES['index']
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = StudentDetailForm()
-        return context
-
-
-class AuthView(View):
-    def get(self, request: WSGIRequest):
-        form = StudentDetailForm()
-        return render(request, template_name=TEMPLATES['index'], context={'form': form})
-
-    def post(self, request: WSGIRequest):
-        form = StudentDetailForm(request.POST)
-
-        if not form.is_valid():
-            return render(request, template_name=TEMPLATES['index'], context={'form': form})
-
-        students = StudentModel.objects.filter(phone_number=form['phone_number'].value())
-
-        if len(students):
-            if students[0].has_survey:
-                return HttpResponse('Вы уже прошли опрос')
-        else:
-            StudentModel.objects.create(phone_number=form['phone_number'].value(), start_survey=True)
-
-        return redirect(f'/survey/check-status/')
-
-
 class BookingWizardView(SessionWizardView):
     form_list = [StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3]
     template_name = 'students_survey/survey.html'
@@ -106,19 +66,20 @@ class ResultView(View):
         ans_text = []
 
         for row_index, row in enumerate(answers, start=1):
+            row_info = []
             for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
                 if question_id in [14, 15, 16, 17]: continue
-                ans_text.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
-            ans_text.append(row['q14'])
-            ans_text.append(row['q16'])
+                row_info.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
+            row_info.append(row['q14'])
+            row_info.append(row['q16'])
+            ans_text.append(row_info)
 
         context = {
             'students_len': len(students),
-            'students': students,
+            'students': Util.shuffle_the_list(list(students)),
             'answers_len': len(answers),
             'asks_text': asks_text,
-            'ans_text': ans_text,
-            'rows_len': [i for i in range(len(answers))],
+            'ans_text': Util.shuffle_the_list(ans_text),
             'is_active': SurveyStatusModel.objects.all()[0].is_active
         }
 

@@ -58,12 +58,6 @@
                 {% else %}
                   <td><span class="badge text-bg-danger" style="padding: 1%; color: #fff;">&#10007;</span></td>
                 {% endif %}
-
-<!--                {% if student.start_survey %}-->
-<!--                  <td><span class="badge text-bg-success" style="padding: 1%;">&#10003;</span></td>-->
-<!--                {% else %}-->
-<!--                  <td><span class="badge text-bg-danger" style="padding: 1%; color: #fff;">&#10007;</span></td>-->
-<!--                {% endif %}-->
             </tr>
             {% endfor %}
           </tbody>
@@ -90,9 +84,9 @@
             </tr>
           </thead>
           <tbody>
-            {% for _ in rows_len %}
+            {% for answers in ans_text %}
               <tr>
-                {% for ans in ans_text %}
+                {% for ans in answers %}
                   <td>{{ans}}</td>
                 {% endfor %}
               </tr>
