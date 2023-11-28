@@ -55,8 +55,8 @@ class AnswerModel(models.Model):
     q13: models.IntegerField = models.IntegerField(verbose_name='Есть ли "идеяльный" преп-ль')
     q14: models.CharField = models.CharField(max_length=200, verbose_name='Лучший преп-ль')
     q15: models.ForeignKey = models.ForeignKey('TeacherCriteriaModel', on_delete=models.SET_NULL, null=True, related_name='survey_questions_best', verbose_name='кач-ва преп-ля')
-    q17: models.CharField = models.CharField(max_length=200, verbose_name='Есть ли "худший" преп-ль')
-    q18: models.ForeignKey = models.ForeignKey('TeacherCriteriaModel', on_delete=models.SET_NULL, null=True, related_name='survey_questions_worth', verbose_name='кач-ва преп-ля')
+    q16: models.CharField = models.CharField(max_length=200, verbose_name='Есть ли "худший" преп-ль')
+    q17: models.ForeignKey = models.ForeignKey('TeacherCriteriaModel', on_delete=models.SET_NULL, null=True, related_name='survey_questions_worth', verbose_name='кач-ва преп-ля')
 
     # def __str__(self):
     #     return f'{self.answer:25}'

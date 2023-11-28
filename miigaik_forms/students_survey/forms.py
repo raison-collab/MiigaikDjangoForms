@@ -57,7 +57,7 @@ class AnswerDetailFormPart1(forms.ModelForm):
         fields = list(AnswerModel().get_fields())[:14] + [AnswerModel().get_fields()[15]]
         widgets = generate_widget_for_radio_btns(fields[:-2]) | {
             'q14': forms.TextInput(attrs={'class': 'form-control'}),
-            'q17': forms.TextInput(attrs={'class': 'form-control'})
+            'q16': forms.TextInput(attrs={'class': 'form-control'})
         }
         labels = generate_label_for_radio_btns(fields)
 

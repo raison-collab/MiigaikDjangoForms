@@ -90,9 +90,11 @@
             </tr>
           </thead>
           <tbody>
-            {% for ans in answers %}
+            {% for _ in rows_len %}
               <tr>
-                  <td title="text {{ans.q2}}">{{ans.q1}}</td>
+                {% for ans in ans_text %}
+                  <td>{{ans}}</td>
+                {% endfor %}
               </tr>
             {% endfor %}
           </tbody>

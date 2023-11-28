@@ -86,8 +86,8 @@ class BookingWizardView(SessionWizardView):
             StudentModel.objects.create(phone_number=form_list[0]['phone_number'].value(), has_survey=True)
 
         q15 = TeacherCriteriaModel.objects.create(**form_list[2].cleaned_data)
-        q18 = TeacherCriteriaModel.objects.create(**form_list[3].cleaned_data)
-        AnswerModel.objects.create(**form_list[1].cleaned_data, q15=q15, q18=q18)
+        q17 = TeacherCriteriaModel.objects.create(**form_list[3].cleaned_data)
+        AnswerModel.objects.create(**form_list[1].cleaned_data, q15=q15, q17=q17)
 
         return HttpResponse('Опрос пройден!')
 
@@ -107,18 +107,18 @@ class ResultView(View):
 
         for row_index, row in enumerate(answers, start=1):
             for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
-                if question_id in [15, 16, 18]: continue
-                pprint({'id': question_id, 'ans': ans, 'ans_id': row[ans]})
-                # ans_text.append(questions.get_questions_ans(question_id, ans_id=row[ans]))
-
-        pprint(ans_text)
+                if question_id in [14, 15, 16, 17]: continue
+                ans_text.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
+            ans_text.append(row['q14'])
+            ans_text.append(row['q16'])
 
         context = {
             'students_len': len(students),
             'students': students,
             'answers_len': len(answers),
             'asks_text': asks_text,
-            'answers': answers,
+            'ans_text': ans_text,
+            'rows_len': [i for i in range(len(answers))],
             'is_active': SurveyStatusModel.objects.all()[0].is_active
         }
 
