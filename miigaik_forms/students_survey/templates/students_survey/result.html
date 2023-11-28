@@ -98,4 +98,9 @@
     </div>
   </div>
 </div>
+
+<form action="{% url 'result_survey_page' %}" method="post" style="margin-top:5%; display: flex;">
+  {% csrf_token %}
+  <input type="submit" name="delete_survey_data" class="btn btn-danger" value="Удалить данные">
+</form>
 {% endblock %}

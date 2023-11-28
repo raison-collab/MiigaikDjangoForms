@@ -1,5 +1,6 @@
 from pprint import pprint
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.handlers.wsgi import WSGIRequest
@@ -20,7 +21,8 @@ TEMPLATES = {
 }
 
 URLS = {
-    'result': '/survey/result'
+    'result': '/survey/result',
+    'login': '/login/'
 }
 
 
@@ -52,7 +54,7 @@ class BookingWizardView(SessionWizardView):
         return HttpResponse('Опрос пройден!')
 
 
-class ResultView(View):
+class ResultView(View, LoginRequiredMixin):
     def get(self, r: WSGIRequest):
 
         questions = Questions()
@@ -68,8 +70,11 @@ class ResultView(View):
         for row_index, row in enumerate(answers, start=1):
             row_info = []
             for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
-                if question_id in [14, 15, 16, 17]: continue
+                if question_id in [14, 15, 16, 17]:
+                    continue
+
                 row_info.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
+
             row_info.append(row['q14'])
             row_info.append(row['q16'])
             ans_text.append(row_info)
@@ -86,11 +91,22 @@ class ResultView(View):
         return render(r, TEMPLATES['result'], context=context)
 
     def post(self, r: WSGIRequest):
+        if not self.request.user.is_authenticated:
+            return redirect(URLS['login'])
+
         survey_status = SurveyStatusModel.objects.all()[0]
+
         if 'deactivate_survey' in r.POST:
             survey_status.is_active = False
+
         elif 'activate_survey' in r.POST:
             survey_status.is_active = True
+
+        elif 'delete_survey_data' in r.POST:
+            if survey_status.is_active:
+                return HttpResponse('<h1>Для удаления данных необходимо деактивировать опрос</h1>')
+            print('удаление данных....')
+            # todo Удаление данных
 
         survey_status.save()
 
