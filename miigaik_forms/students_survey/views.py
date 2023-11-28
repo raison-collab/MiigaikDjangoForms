@@ -22,7 +22,7 @@ TEMPLATES = {
 
 URLS = {
     'result': '/survey/result',
-    'login': '/login/'
+    'login': '/auth/login/'
 }
 
 
@@ -91,8 +91,9 @@ class ResultView(View, LoginRequiredMixin):
         return render(r, TEMPLATES['result'], context=context)
 
     def post(self, r: WSGIRequest):
-        if not self.request.user.is_authenticated:
-            return redirect(URLS['login'])
+        # todo Доделать авторизацию
+        # if not self.request.user.is_authenticated:
+        #     return redirect(URLS['login'])
 
         survey_status = SurveyStatusModel.objects.all()[0]
 
