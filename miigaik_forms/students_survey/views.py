@@ -11,19 +11,37 @@ from django.views.generic import TemplateView
 from formtools.wizard.views import SessionWizardView
 
 from .data.questions import Questions
-from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3
-from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel
+from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3, QuestionsForm
+from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel, QuestionsModel
 from .utils import Util
 
 TEMPLATES = {
     'index': 'students_survey/index.html',
-    'result': 'students_survey/result.html'
+    'result': 'students_survey/result.html',
+    'questions': 'students_survey/questions.html'
 }
 
 URLS = {
     'result': '/survey/result',
     'login': '/auth/login/'
 }
+
+
+class QuestionsView(View):
+    def get(self, request: WSGIRequest):
+        form = QuestionsForm()
+
+        fields = QuestionsModel().get_fields()
+        pprint([fields[0]] + fields[2: 13] + fields[13: 19])
+
+        context = {
+            'form': form
+        }
+
+        return render(request, TEMPLATES['questions'], context)
+
+    def post(self, request: WSGIRequest):
+        pass
 
 
 # Create your views here.
@@ -63,28 +81,16 @@ class ResultView(View, LoginRequiredMixin):
 
         answers = list(AnswerModel.objects.values())
 
+        reformat_answers = Util.reformat_answers(answers)
+
         asks_text = [el[1] for el in questions.get_questions_text()]
-
-        ans_text = []
-
-        for row_index, row in enumerate(answers, start=1):
-            row_info = []
-            for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
-                if question_id in [14, 15, 16, 17]:
-                    continue
-
-                row_info.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
-
-            row_info.append(row['q14'])
-            row_info.append(row['q16'])
-            ans_text.append(row_info)
 
         context = {
             'students_len': len(students),
             'students': Util.shuffle_the_list(list(students)),
             'answers_len': len(answers),
             'asks_text': asks_text,
-            'ans_text': Util.shuffle_the_list(ans_text),
+            'ans_text': Util.shuffle_the_list(reformat_answers),
             'is_active': SurveyStatusModel.objects.all()[0].is_active
         }
 
@@ -97,6 +103,14 @@ class ResultView(View, LoginRequiredMixin):
 
         survey_status = SurveyStatusModel.objects.all()[0]
 
+        answers = list(AnswerModel.objects.values())
+
+        questions = Questions()
+
+        ans_headers = [el[1] for el in questions.get_questions_text()]
+
+        students_data = [[el.phone_number, el.has_survey] for el in StudentModel.objects.all()]
+
         if 'deactivate_survey' in r.POST:
             survey_status.is_active = False
 
@@ -108,6 +122,13 @@ class ResultView(View, LoginRequiredMixin):
                 return HttpResponse('<h1>Для удаления данных необходимо деактивировать опрос</h1>')
             print('удаление данных....')
             # todo Удаление данных
+
+        elif 'download_result' in r.POST:
+            Util.generate_xlsx_file('result/результаты.xlsx',
+                                    students_data=Util.shuffle_the_list(students_data),
+                                    students_headers=['Номер тел.', 'Прошел тест'],
+                                    ans_data=Util.reformat_answers(Util.shuffle_the_list(answers)),
+                                    ans_headers=ans_headers)
 
         survey_status.save()
 

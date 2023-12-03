@@ -1,7 +1,7 @@
 from django import forms
 
 from .data.questions import Questions
-from .models import StudentModel, AnswerModel, TeacherCriteriaModel
+from .models import StudentModel, AnswerModel, TeacherCriteriaModel, QuestionsModel
 
 questions = Questions()
 
@@ -18,7 +18,7 @@ def generate_widget_for_radio_btns(fields: list[str], is_tacher: bool = False) -
         return widgets
 
     for field in fields:
-        widgets[f'{field}'] = forms.RadioSelect(choices=questions.get_questions_ans(int(field.replace('q', '')), choice=True),
+        widgets[field] = forms.RadioSelect(choices=questions.get_questions_ans(int(field.replace('q', '')), choice=True),
                                                 attrs={'type': 'radio'})
 
     return widgets
@@ -47,6 +47,17 @@ class StudentDetailForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '+7XXXXXXXXXX'
             })
+        }
+
+
+class QuestionsForm(forms.ModelForm):
+    class Meta:
+        model = QuestionsModel
+        fields = QuestionsModel().get_fields()
+        widgets = {
+            'q1_dop': forms.TextInput(attrs={'class': 'form-control'}),
+            'q18_dop': forms.TextInput(attrs={'class': 'form-control'}),
+            'q13': forms.TextInput(attrs={'class': 'form-control'})
         }
 
 

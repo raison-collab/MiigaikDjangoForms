@@ -22,7 +22,7 @@
         <td style="margin-right: 50%;">{{ students_len }}</td>
         <form action="{% url 'result_survey_page' %}" method="post">
           {% csrf_token %}
-          <td><input type="submit" name="get_result" class="btn btn-success" value="Скачать результаты"></input></td>
+          <td><input type="submit" name="download_result" class="btn btn-success" value="Скачать результаты"></input></td>
           {% if is_active %}
           <td><input type="submit" name="deactivate_survey" class="btn btn-danger" value="Деактивировать опрос"></input></td>
           {% else %}

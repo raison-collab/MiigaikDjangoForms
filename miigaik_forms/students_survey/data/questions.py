@@ -6,8 +6,8 @@ from pprint import pprint
 
 class Questions:
     def __init__(self):
-        self.questions_path = 'students_survey/data/questions/questions.json'
-        # self.questions_path = 'questions/questions.json'
+        self.questions_path = 'students_survey/data/questions/questions1.json'
+        # self.questions_path = 'questions/questions1.json'
         self.teacher_criteria_path = 'students_survey/data/questions/teacher_criteria.json'
         # self.teacher_criteria_path = 'questions/teacher_criteria.json'
 

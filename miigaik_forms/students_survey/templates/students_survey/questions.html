@@ -1,0 +1,14 @@
+{% extends "students_survey/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}Опрос студентов{% endblock %}
+
+{% block content %}
+<form action="{% url 'survey_questions_page1' %}" method="post">
+    {% for field in form %}
+        {{ field }}
+    {% endfor %}
+    {{ form }}
+</form>
+{% endblock %}

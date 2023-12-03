@@ -39,6 +39,32 @@ class TeacherCriteriaModel(models.Model):
         return list(self.__annotations__.keys())
 
 
+class QuestionsModel(models.Model):
+    q1: models.IntegerField = models.IntegerField(verbose_name='')
+    q1_dop: models.TextField = models.TextField(blank=True, null=True, default=None, verbose_name='Если да, то чему')
+    q2: models.IntegerField = models.IntegerField(verbose_name='')
+    q3: models.IntegerField = models.IntegerField(verbose_name='')
+    q4: models.IntegerField = models.IntegerField(verbose_name='')
+    q5: models.IntegerField = models.IntegerField(verbose_name='')
+    q6: models.IntegerField = models.IntegerField(verbose_name='')
+    q7: models.IntegerField = models.IntegerField(verbose_name='')
+    q8: models.IntegerField = models.IntegerField(verbose_name='')
+    q9: models.IntegerField = models.IntegerField(verbose_name='')
+    q10: models.IntegerField = models.IntegerField(verbose_name='')
+    q11: models.IntegerField = models.IntegerField(verbose_name='')
+    q12: models.IntegerField = models.IntegerField(verbose_name='')
+    q13: models.TextField = models.TextField(verbose_name='')
+    q14: models.IntegerField = models.IntegerField(verbose_name='')
+    q15: models.IntegerField = models.IntegerField(verbose_name='')
+    q16: models.IntegerField = models.IntegerField(verbose_name='')
+    q17: models.IntegerField = models.IntegerField(verbose_name='')
+    q18: models.IntegerField = models.IntegerField(verbose_name='')
+    q18_dop: models.TextField = models.TextField(blank=True, null=True, default=None, verbose_name='')
+
+    def get_fields(self) -> list:
+        return list(self.__annotations__.keys())
+
+
 class AnswerModel(models.Model):
     q1: models.IntegerField = models.IntegerField(verbose_name='Пол')
     q2: models.IntegerField = models.IntegerField(verbose_name='Факультет')
