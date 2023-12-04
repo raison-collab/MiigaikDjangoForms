@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from formtools.wizard.views import SessionWizardView
 
 from .data.questions import Questions
-from .forms import StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3, QuestionsForm
+from .forms import StudentDetailForm, QuestionsForm
 from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel, QuestionsModel
 from .utils import Util
 
@@ -31,9 +31,6 @@ class QuestionsView(View):
     def get(self, request: WSGIRequest):
         form = QuestionsForm()
 
-        fields = QuestionsModel().get_fields()
-        pprint([fields[0]] + fields[2: 13] + fields[13: 19])
-
         context = {
             'form': form
         }
@@ -46,7 +43,7 @@ class QuestionsView(View):
 
 # Create your views here.
 class BookingWizardView(SessionWizardView):
-    form_list = [StudentDetailForm, AnswerDetailFormPart1, AnswerDetailFormPart2, AnswerDetailFormPart3]
+    form_list = [StudentDetailForm, QuestionsForm]
     template_name = 'students_survey/survey.html'
 
     def done(self, form_list, **kwargs):
@@ -65,9 +62,7 @@ class BookingWizardView(SessionWizardView):
         else:
             StudentModel.objects.create(phone_number=form_list[0]['phone_number'].value(), has_survey=True)
 
-        q15 = TeacherCriteriaModel.objects.create(**form_list[2].cleaned_data)
-        q17 = TeacherCriteriaModel.objects.create(**form_list[3].cleaned_data)
-        AnswerModel.objects.create(**form_list[1].cleaned_data, q15=q15, q17=q17)
+        QuestionsModel.objects.create(**form_list[1].cleaned_data)
 
         return HttpResponse('Опрос пройден!')
 
@@ -79,11 +74,11 @@ class ResultView(View, LoginRequiredMixin):
 
         students = StudentModel.objects.all()
 
-        answers = list(AnswerModel.objects.values())
+        answers = list(QuestionsModel.objects.values())
 
         reformat_answers = Util.reformat_answers(answers)
 
-        asks_text = [el[1] for el in questions.get_questions_text()]
+        asks_text = Util.reformat_asks([el[1] for el in questions.get_questions_text()])
 
         context = {
             'students_len': len(students),

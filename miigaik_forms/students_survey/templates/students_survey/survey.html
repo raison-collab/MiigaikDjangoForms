@@ -60,3 +60,35 @@
     </form>
 
 {% endblock %}
+
+{% block script %}
+<script>
+let q1_dop_yes = document.getElementById("id_1-q1_1");
+let q1_dop_no = document.getElementById("id_1-q1_0");
+
+let q18_dop_no = document.getElementById("id_1-q18_0");
+let q18_dop_yes = document.getElementById("id_1-q18_1");
+
+let q1_dop_input = document.getElementById("id_1-q1_dop");
+q1_dop_input.setAttribute("disabled", "true")
+
+let q18_dop_input = document.getElementById("id_1-q18_dop");
+q18_dop_input.setAttribute("disabled", "true")
+
+q1_dop_yes.addEventListener('click', (event) => {
+    q1_dop_input.removeAttribute("disabled")
+});
+
+q1_dop_no.addEventListener("click", (event) => {
+    q1_dop_input.setAttribute("disabled", "true")
+})
+
+q18_dop_no.addEventListener("click", (event) => {
+    q18_dop_input.setAttribute("disabled", "true")
+})
+
+q18_dop_yes.addEventListener("click", (event) => {
+    q18_dop_input.removeAttribute("disabled")
+})
+</script>
+{% endblock %}

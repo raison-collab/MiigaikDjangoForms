@@ -1,10 +1,11 @@
 import random
+from pprint import pprint
 
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from .data.questions import Questions
-from .models import AnswerModel
+from .models import AnswerModel, QuestionsModel
 
 
 class Util:
@@ -21,17 +22,26 @@ class Util:
 
         for row_index, row in enumerate(answers, start=1):
             row_info = []
-            for question_id, ans in enumerate(AnswerModel().get_fields(), start=1):
-                if question_id in [14, 15, 16, 17]:
+
+            for ans in QuestionsModel().get_fields():
+                if ans in ['q1_dop', 'q13', 'q18_dop']:
                     continue
 
-                row_info.append(questions.get_questions_ans(question_id, ans_id=row[ans])[0]['text'])
+                row_info.append(questions.get_questions_ans(int(ans.replace('q', '')), ans_id=row[ans])[0]['text'])
 
-            row_info.append(row['q14'])
-            row_info.append(row['q16'])
+            row_info.insert(1, row['q1_dop'])
+            row_info.insert(13, row['q13'])
+            row_info.insert(19, row['q18_dop'])
+
             ans_text.append(row_info)
 
         return ans_text
+
+    @staticmethod
+    def reformat_asks(asks: list) -> list:
+        asks.insert(1, 'Вопрос 1 (если Да)')
+        asks.insert(19, 'Вопрос 18 (если Да)')
+        return asks
 
     @staticmethod
     def generate_xlsx_file(path: str,
