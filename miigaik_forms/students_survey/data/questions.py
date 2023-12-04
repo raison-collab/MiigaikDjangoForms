@@ -7,7 +7,6 @@ from pprint import pprint
 class Questions:
     def __init__(self):
         self.questions_path = 'students_survey/data/questions/questions1.json'
-        # self.questions_path = 'questions/questions1.json'
 
     def get_questions(self, questions_id: typing.Optional[int] = None) -> list:
         with open(self.questions_path) as f:

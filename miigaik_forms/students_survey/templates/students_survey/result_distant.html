@@ -45,14 +45,14 @@
         <table class="table table-striped table-hover">
           <thead>
             <tr>
-              <th scope="col">Номер тел.</th>
+              <th scope="col">Логин СДО</th>
               <th scope="col">Закончил опрос</th>
             </tr>
           </thead>
           <tbody>
             {% for student in students %}
               <tr>
-              <th scope="row">{{ student.phone_number }}</th>
+              <th scope="row">{{ student.cdo_login }}</th>
                 {% if student.has_survey %}
                   <td><span class="badge text-bg-success" style="padding: 1%;">&#10003;</span></td>
                 {% else %}

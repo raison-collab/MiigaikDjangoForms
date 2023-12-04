@@ -1,7 +1,7 @@
 from django import forms
 
 from .data.questions import Questions
-from .models import StudentModel, AnswerModel, TeacherCriteriaModel, QuestionsModel
+from .models import StudentModel, QuestionsModel
 
 questions = Questions()
 
@@ -30,11 +30,11 @@ def generate_label_for_radio_btns(fields: list[str]) -> dict:
 class StudentDetailForm(forms.ModelForm):
     class Meta:
         model = StudentModel
-        fields = ('phone_number',)
+        fields = ('cdo_login',)
         widgets = {
-            'phone_number': forms.TextInput(attrs={
+            'cdo_login': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '+7XXXXXXXXXX'
+                'placeholder': 'Ваш логин СДО'
             })
         }
 
@@ -51,32 +51,3 @@ class QuestionsForm(forms.ModelForm):
         labels = generate_label_for_radio_btns([fields[0]] + fields[2: 19]) | {
             'q18_dop': 'Какие конкретно'
         }
-
-
-# class AnswerDetailFormPart1(forms.ModelForm):
-#
-#     class Meta:
-#         model = AnswerModel
-#         fields = list(AnswerModel().get_fields())[:14] + [AnswerModel().get_fields()[15]]
-#         widgets = generate_widget_for_radio_btns(fields[:-2]) | {
-#             'q14': forms.TextInput(attrs={'class': 'form-control'}),
-#             'q16': forms.TextInput(attrs={'class': 'form-control'})
-#         }
-#         labels = generate_label_for_radio_btns(fields)
-
-
-# class AnswerDetailFormPart2(forms.ModelForm):
-#     class Meta:
-#         model = TeacherCriteriaModel
-#         fields = TeacherCriteriaModel().get_fields()
-#         widgets = generate_widget_for_radio_btns(fields, is_tacher=True)
-#         labels = generate_label_for_radio_btns(fields, is_teacher=True)
-
-
-# class AnswerDetailFormPart3(AnswerDetailFormPart2):
-#
-#     class Meta:
-#         model = TeacherCriteriaModel
-#         fields = TeacherCriteriaModel().get_fields()
-#         widgets = generate_widget_for_radio_btns(fields, is_tacher=True)
-#         labels = generate_label_for_radio_btns(fields, is_teacher=True)

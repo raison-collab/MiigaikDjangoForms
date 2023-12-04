@@ -12,18 +12,27 @@ from formtools.wizard.views import SessionWizardView
 
 from .data.questions import Questions
 from .forms import StudentDetailForm, QuestionsForm
-from .models import StudentModel, SurveyStatusModel, AnswerModel, TeacherCriteriaModel, QuestionsModel
+from .models import StudentModel, SurveyStatusModel, QuestionsModel
 from .utils import Util
 
 TEMPLATES = {
     'index': 'students_survey/index.html',
-    'result': 'students_survey/result.html',
-    'questions': 'students_survey/questions.html'
+    'result': 'students_survey/result_distant.html',
+    'questions': 'students_survey/questions.html',
+    'distant_survey': 'students_survey/distant_survey.html'
 }
 
 URLS = {
     'result': '/survey/result',
     'login': '/auth/login/'
+}
+
+FILES_PATH = {
+    'distant_res': 'media/result/результаты_дистант.xlsx'
+}
+
+FILES_URLS = {
+    'distant_res': '/' + FILES_PATH['distant_res']
 }
 
 
@@ -44,14 +53,14 @@ class QuestionsView(View):
 # Create your views here.
 class BookingWizardView(SessionWizardView):
     form_list = [StudentDetailForm, QuestionsForm]
-    template_name = 'students_survey/survey.html'
+    template_name = TEMPLATES['distant_survey']
 
     def done(self, form_list, **kwargs):
 
         if not SurveyStatusModel.objects.all()[0].is_active:
             return HttpResponse('Ответы не сохранены. Форма неактивна')
 
-        students = StudentModel.objects.filter(phone_number=form_list[0]['phone_number'].value())
+        students = StudentModel.objects.filter(cdo_login=form_list[0]['cdo_login'].value())
 
         if len(students):
             if students[0].has_survey:
@@ -60,7 +69,7 @@ class BookingWizardView(SessionWizardView):
                 students[0].has_survey = True
                 students[0].save()
         else:
-            StudentModel.objects.create(phone_number=form_list[0]['phone_number'].value(), has_survey=True)
+            StudentModel.objects.create(cdo_login=form_list[0]['cdo_login'].value(), has_survey=True)
 
         QuestionsModel.objects.create(**form_list[1].cleaned_data)
 
@@ -98,13 +107,13 @@ class ResultView(View, LoginRequiredMixin):
 
         survey_status = SurveyStatusModel.objects.all()[0]
 
-        answers = list(AnswerModel.objects.values())
+        answers = list(QuestionsModel.objects.values())
 
         questions = Questions()
 
-        ans_headers = [el[1] for el in questions.get_questions_text()]
+        ans_headers = Util.reformat_asks([el[1] for el in questions.get_questions_text()])
 
-        students_data = [[el.phone_number, el.has_survey] for el in StudentModel.objects.all()]
+        students_data = [[el.cdo_login, el.has_survey] for el in StudentModel.objects.all()]
 
         if 'deactivate_survey' in r.POST:
             survey_status.is_active = False
@@ -119,12 +128,18 @@ class ResultView(View, LoginRequiredMixin):
             # todo Удаление данных
 
         elif 'download_result' in r.POST:
-            Util.generate_xlsx_file('result/результаты.xlsx',
+            Util.generate_xlsx_file(FILES_PATH['distant_res'],
                                     students_data=Util.shuffle_the_list(students_data),
-                                    students_headers=['Номер тел.', 'Прошел тест'],
+                                    students_headers=['Логин СДО', 'Прошел тест'],
                                     ans_data=Util.reformat_answers(Util.shuffle_the_list(answers)),
                                     ans_headers=ans_headers)
+
+            return redirect(FILES_URLS['distant_res'])
 
         survey_status.save()
 
         return redirect(URLS['result'])
+
+
+def download_file(r: WSGIRequest):
+    ...

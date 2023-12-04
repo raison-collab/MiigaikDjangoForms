@@ -5,7 +5,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from .data.questions import Questions
-from .models import AnswerModel, QuestionsModel
+from .models import QuestionsModel
 
 
 class Util:
