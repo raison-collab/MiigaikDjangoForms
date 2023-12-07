@@ -135,8 +135,8 @@ class ResultView(View, LoginRequiredMixin):
             if survey_status.is_active:
                 return HttpResponse(RESPONSE_MESSAGE['survey_active_for_delete_data'])
 
-            students = StudentModel.objects.all().delete()
-            answers = QuestionsModel.objects.all().delete()
+            StudentModel.objects.all().delete()
+            QuestionsModel.objects.all().delete()
 
         elif 'download_result' in r.POST:
             Util.generate_xlsx_file(FILES_PATH['distant_res'],

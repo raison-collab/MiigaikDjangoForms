@@ -15,6 +15,10 @@ class StudentModel(models.Model):
     def __str__(self):
         return str(self.cdo_login)
 
+    class Meta:
+        verbose_name = 'Студент'
+        verbose_name_plural = 'Студенты'
+
 
 class QuestionsModel(models.Model):
     q1: models.IntegerField = models.IntegerField(verbose_name='')
@@ -41,8 +45,16 @@ class QuestionsModel(models.Model):
     def get_fields(self) -> list:
         return list(self.__annotations__.keys())
 
+    class Meta:
+        verbose_name = 'Ответ'
+        verbose_name_plural = 'Ответы'
+
 
 class SurveyStatusModel(models.Model):
     is_active = models.BooleanField(default=False, verbose_name='Опрос активен')
+
+    class Meta:
+        verbose_name = 'Статус опроса'
+        verbose_name_plural = 'Статусы опросов'
 
 
