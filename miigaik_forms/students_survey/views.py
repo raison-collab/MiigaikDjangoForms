@@ -19,12 +19,12 @@ TEMPLATES = {
     'index': 'students_survey/index.html',
     'result': 'students_survey/result_distant.html',
     'questions': 'students_survey/questions.html',
-    'distant_survey': 'students_survey/distant_survey.html'
+    'distant_survey': 'students_survey/distant_survey.html',
+    'survey': 'students_survey/survey.html'
 }
 
 URLS = {
-    'result': '/survey/result',
-    'login': '/auth/login/'
+    'result': '/survey/result/distant',
 }
 
 FILES_PATH = {
@@ -33,6 +33,14 @@ FILES_PATH = {
 
 FILES_URLS = {
     'distant_res': '/' + FILES_PATH['distant_res']
+}
+
+RESPONSE_MESSAGE = {
+    'not_auth': '<h1>Авторизуйтесь!</h1>',
+    'survey_success': '<h1>Опрос пройден</h1>',
+    'survey_not_active': '<h1>Опрос не активен. Результаты не сохранены</h1>',
+    'survey_done': '<h1>Вы уже прошли опрос ранее. Результаты не сохранены</h1>',
+    'survey_active_for_delete_data': '<h1>Для удаления данных необходимо деактивировать опрос!</h1>'
 }
 
 
@@ -58,13 +66,13 @@ class BookingWizardView(SessionWizardView):
     def done(self, form_list, **kwargs):
 
         if not SurveyStatusModel.objects.all()[0].is_active:
-            return HttpResponse('Ответы не сохранены. Форма неактивна')
+            return HttpResponse(RESPONSE_MESSAGE['survey_not_active'])
 
         students = StudentModel.objects.filter(cdo_login=form_list[0]['cdo_login'].value())
 
         if len(students):
             if students[0].has_survey:
-                return HttpResponse('Ответы не сохранены, Вы уже прошли опрос ранее!')
+                return HttpResponse(RESPONSE_MESSAGE['survey_not_active'])
             else:
                 students[0].has_survey = True
                 students[0].save()
@@ -73,11 +81,14 @@ class BookingWizardView(SessionWizardView):
 
         QuestionsModel.objects.create(**form_list[1].cleaned_data)
 
-        return HttpResponse('Опрос пройден!')
+        return HttpResponse(RESPONSE_MESSAGE['survey_success'])
 
 
 class ResultView(View, LoginRequiredMixin):
     def get(self, r: WSGIRequest):
+
+        if not self.request.user.is_authenticated:
+            return HttpResponse(RESPONSE_MESSAGE['not_auth'])
 
         questions = Questions()
 
@@ -101,9 +112,8 @@ class ResultView(View, LoginRequiredMixin):
         return render(r, TEMPLATES['result'], context=context)
 
     def post(self, r: WSGIRequest):
-        # todo Доделать авторизацию
-        # if not self.request.user.is_authenticated:
-        #     return redirect(URLS['login'])
+        if not self.request.user.is_authenticated:
+            return HttpResponse(RESPONSE_MESSAGE['not_auth'])
 
         survey_status = SurveyStatusModel.objects.all()[0]
 
@@ -123,9 +133,10 @@ class ResultView(View, LoginRequiredMixin):
 
         elif 'delete_survey_data' in r.POST:
             if survey_status.is_active:
-                return HttpResponse('<h1>Для удаления данных необходимо деактивировать опрос</h1>')
-            print('удаление данных....')
-            # todo Удаление данных
+                return HttpResponse(RESPONSE_MESSAGE['survey_active_for_delete_data'])
+
+            students = StudentModel.objects.all().delete()
+            answers = QuestionsModel.objects.all().delete()
 
         elif 'download_result' in r.POST:
             Util.generate_xlsx_file(FILES_PATH['distant_res'],
@@ -141,5 +152,5 @@ class ResultView(View, LoginRequiredMixin):
         return redirect(URLS['result'])
 
 
-def download_file(r: WSGIRequest):
-    ...
+class SurveyView(TemplateView):
+    template_name = TEMPLATES['survey']

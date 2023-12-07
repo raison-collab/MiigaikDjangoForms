@@ -20,7 +20,7 @@
 ">
         <td>Количество участников:</td>
         <td style="margin-right: 50%;">{{ students_len }}</td>
-        <form action="{% url 'result_survey_page' %}" method="post">
+        <form action="{% url 'result_distant_survey_page' %}" method="post">
           {% csrf_token %}
           <td><input type="submit" name="download_result" class="btn btn-success" value="Скачать результаты"></input></td>
           {% if is_active %}
@@ -99,7 +99,7 @@
   </div>
 </div>
 
-<form action="{% url 'result_survey_page' %}" method="post" style="margin-top:5%; display: flex;">
+<form action="{% url 'result_distant_survey_page' %}" method="post" style="margin-top:5%; display: flex;">
   {% csrf_token %}
   <input type="submit" name="delete_survey_data" class="btn btn-danger" value="Удалить данные">
 </form>

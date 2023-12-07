@@ -1,0 +1,24 @@
+{% extends  'students_survey/base.html' %}
+
+{% block title %}Опросы{% endblock %}
+
+
+{% block content %}
+<h1>Опросы</h1>
+
+<div class="container">
+    <table class="table" style="
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+">
+    <tr>
+        <td><a href="{% url 'survey_questions_page' %}"> Сетевая магистратура (дистант)</a></td>
+        {% if request.user.is_authenticated %}
+        <td><a href="{% url 'result_distant_survey_page' %}">Результаты Сет.маг (дистант)</a></td>
+        {% endif %}
+    </tr>
+</table>
+</div>
+
+{% endblock %}

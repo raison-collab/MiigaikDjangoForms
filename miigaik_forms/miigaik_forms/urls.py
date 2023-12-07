@@ -22,5 +22,4 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('survey/', include('students_survey.urls')),
-    path('auth/', include('authenticate.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
